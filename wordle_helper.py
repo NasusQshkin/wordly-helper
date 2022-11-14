@@ -6,26 +6,30 @@ This is a temporary script file.
 """
 import copy
 import re
+import io
+
 def idiot_check(queston):
     
     answer = input(queston)
     while answer not in correctanswers:
-        answer = input('Are u dumb? '+queston)
+        answer = input('Не тупи! '+queston)
     return answer
 
 def input_letter():
     
     
-    letter = input('Input letter: ')
-    while len(letter)>1 or not re.match('[а-яА-Я]', letter):
-        letter = str.upper(input('Input letter: '))
+    letter = input('Введите букву или несколько букв номер которых вы не знаете: ')
+    while not re.match('[а-яА-Яъьы]', letter):
+        letter = str.upper(input('Не тупи! Введи букву: '))
     
     number = None
-    ans = idiot_check("you're know letter number? Y/N: ")
-    if ans == 'Y' or ans == 'y':
-        number = input('Input this letter number: ')
-        while number not in z:
-            number = input('Input this letter number: ')
+    if len(letter)==1:
+        ans = idiot_check("Вы знаете номер буквы? Д/Н: ")
+        if ans == 'д' or ans == 'Д':
+            number = input('Введите номер буквы: ')
+            while number not in z:
+                number = input('Не тупи! Введи номер буквы: ')
+    
     return letter,number
 
 
@@ -46,28 +50,39 @@ def words_out(word):
 
 
 def no_letter_append():
-
+    print("\nВвод букв отсутвующих в слове")
+    
     while True:
-        print("Ввод букв отсутвующих в слове")
-        no_letters.append(list(input_letter()))
-        ans = idiot_check('want continue? Y/N: ')
-        if ans == 'N' or ans == 'n':
+        
+        temp = list(input_letter())
+        if len(temp[0])>1: 
+            temp2 = re.sub('\W+', '', temp[0])
+            for i in temp2:
+                no_letters.append([i,None])
+        else:
+            no_letters.append(temp)
+        ans = idiot_check('Ещё одну? Д/Н: ')
+        if ans == 'Н' or ans == 'н':
             break    
         
 def letter_append():
-    global q
-    q = 0
-    print("Ввод букв присутсвующих в слове")
-    while q<=4:
-        letters.append(list(input_letter()))
-        q+=1
-        ans = idiot_check('want continue? Y/N: ')
-        if ans == 'N' or ans == 'n':
+    print("\nВвод букв присутсвующих в слове")
+    
+    while True:
+        temp = list(input_letter())
+        if len(temp[0])>1: 
+            temp2 = re.sub('\W+', '', temp[0])
+            for i in temp2:
+                letters.append([i,None])
+        else:
+            letters.append(temp)
+        ans = idiot_check('Ещё одну? Д/Н: ')
+        if ans == 'Н' or ans == 'н':
             break    
           
 
 letters = []
-correctanswers = ['Y','N','R','r','n','y']
+correctanswers = ['Д','Н','З','д','н','з']
 no_letters = []
 list_of_words = []    
 words_with_5_letters = []
@@ -77,9 +92,9 @@ a = 1
 n = 0
 
 
-with open('3.txt','r') as infile:
+with io.open('dict.txt',mode = 'r',encoding="utf-8" ) as infile:
     for line in infile:
-        words_with_5_letters.append(line[0:5])
+        words_with_5_letters.append(str.upper(line[0:5]))
 
 
 letter_append()
@@ -92,15 +107,20 @@ while True:
             words_out(word)
             count+=1
         count=0
-    if len(list_of_words)>0:    
-        print(list_of_words)
-        main_ans = input('Add letter or restart? Y/N/R: ' )
-        if main_ans == 'Y' or main_ans == 'y':
+    if len(list_of_words)>0:
+        print("\n")
+        for i in range(0,len(list_of_words)):
+            print(list_of_words[i], end='  ')
+            if ((i+1)%5)==0 and i!=0:
+                print('\n')
+        print('\n')
+        main_ans = input('Добавить букву или начать заново? Д/Н/З: ' )
+        if main_ans == 'Д' or main_ans == 'д':
            letter_append()
-        elif main_ans == 'R' or main_ans =='r':
+        elif main_ans == 'З' or main_ans =='з':
             q=0
             letters = []
-            no_letter = []
+            no_letters = []
             list_of_words = copy.copy(words_with_5_letters)
             letter_append()
             no_letter_append()
@@ -108,11 +128,10 @@ while True:
             q = 0
             break
     else:
-        print('No words( Restarting')
+        print('Подходящих слов не найдено(\n Restarting')
         q=0
         letters = []
         no_letters = []
         list_of_words = copy.copy(words_with_5_letters)
         letter_append()
         no_letter_append()
-   
